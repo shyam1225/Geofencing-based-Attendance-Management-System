@@ -91,47 +91,48 @@ public class AttendanceService {
     public List<Attendance> getStudentAttendance(Long studentId) {
         return attendanceRepository.findByStudentId(studentId);
     }
-    public List<Attendance> getCourseAttendance(Long courseId) {
-        return attendanceRepository.findByCourseId(courseId);
-    }
-    public List<Attendance> getCourseAttendanceByDate(
-            Long courseId,
-            LocalDate date) {
-
-        return attendanceRepository.findByCourseIdAndDate(
-                courseId,
-                date
-        );
-    }
     public AttendanceSummary getAttendanceSummary(
             Long courseId,
-            LocalDate date) {
+            LocalDate date,
+            Long professorId) {
 
+        // Find the course
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
 
+        // Make sure the logged-in professor owns this course
+        if (course.getProfessor() == null ||
+                !course.getProfessor().getId().equals(professorId)) {
+
+            throw new RuntimeException(
+                    "You are not the professor of this course");
+        }
+
+        // Get all attendance records for this course and date
+        List<Attendance> records =
+                attendanceRepository.findByCourseIdAndDate(
+                        courseId,
+                        date
+                );
+
+        // Total students enrolled in the course
         int totalStudents = course.getStudents().size();
 
-        List<Attendance> attendanceList =
-                attendanceRepository.findByCourseIdAndDate(courseId, date);
+        // Count present students
+        int presentStudents = (int) records.stream()
+                .filter(Attendance::isPresent)
+                .count();
 
-        int presentStudents = 0;
-
-        for (Attendance attendance : attendanceList) {
-            if (attendance.isPresent()) {
-                presentStudents++;
-            }
-        }
-
+        // Calculate absent students
         int absentStudents = totalStudents - presentStudents;
 
-        double attendancePercentage = 0;
+        // Calculate percentage
+        double attendancePercentage = totalStudents == 0
+                ? 0.0
+                : (presentStudents * 100.0) / totalStudents;
 
-        if (totalStudents > 0) {
-            attendancePercentage =
-                    ((double) presentStudents / totalStudents) * 100;
-        }
-
+        // Return summary
         return new AttendanceSummary(
                 courseId,
                 date,
@@ -143,10 +144,19 @@ public class AttendanceService {
     }
     public List<AttendanceRecordDTO> getAttendanceRecords(
             Long courseId,
-            LocalDate date) {
+            LocalDate date,
+            Long professorId) {
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
+
+        if (course.getProfessor() == null ||
+                !course.getProfessor().getId().equals(professorId)) {
+
+            throw new RuntimeException(
+                    "You are not the professor of this course");
+        }
 
         List<Attendance> attendanceList =
                 attendanceRepository.findByCourseIdAndDate(
@@ -173,13 +183,20 @@ public class AttendanceService {
                 .toList();
     }
     public List<StudentAttendanceDTO> getOverallAttendance(
-            Long courseId) {
+            Long courseId,
+            Long professorId) {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         List<Attendance> attendanceList =
                 attendanceRepository.findByCourseId(courseId);
+        if (course.getProfessor() == null ||
+                !course.getProfessor().getId().equals(professorId)) {
+
+            throw new RuntimeException(
+                    "You are not the professor of this course");
+        }
 
         // Find all dates on which attendance was conducted
         Set<LocalDate> attendanceDates = attendanceList.stream()

@@ -4,6 +4,7 @@ import com.attendance.attendance_system.dto.AttendanceRecordDTO;
 import com.attendance.attendance_system.dto.StudentAttendanceDTO;
 import com.attendance.attendance_system.entity.Attendance;
 import com.attendance.attendance_system.service.AttendanceService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.attendance.attendance_system.dto.LocationRequest;
 import java.time.LocalDate;
@@ -40,46 +41,49 @@ public class AttendanceController {
 
         return attendanceService.getStudentAttendance(studentId);
     }
-    @GetMapping("/course/{courseId}")
-    public List<Attendance> getCourseAttendance(
-            @PathVariable Long courseId) {
-
-        return attendanceService.getCourseAttendance(courseId);
-    }
-    @GetMapping("/course/{courseId}/date/{date}")
-    public List<Attendance> getCourseAttendanceByDate(
-            @PathVariable Long courseId,
-            @PathVariable LocalDate date) {
-
-        return attendanceService.getCourseAttendanceByDate(
-                courseId,
-                date
-        );
-    }
     @GetMapping("/course/{courseId}/summary/{date}")
     public AttendanceSummary getAttendanceSummary(
             @PathVariable Long courseId,
             @PathVariable LocalDate date) {
 
+        Long professorId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
         return attendanceService.getAttendanceSummary(
                 courseId,
-                date
+                date,
+                professorId
         );
     }
     @GetMapping("/course/{courseId}/records/{date}")
     public List<AttendanceRecordDTO> getAttendanceRecords(
             @PathVariable Long courseId,
             @PathVariable LocalDate date) {
+        Long professorId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
         return attendanceService.getAttendanceRecords(
                 courseId,
-                date
+                date,
+                professorId
         );
     }
     @GetMapping("/course/{courseId}/overall")
     public List<StudentAttendanceDTO> getOverallAttendance(
             @PathVariable Long courseId) {
 
-        return attendanceService.getOverallAttendance(courseId);
+        Long professorId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return attendanceService.getOverallAttendance(
+                courseId,
+                professorId
+        );
     }
 }

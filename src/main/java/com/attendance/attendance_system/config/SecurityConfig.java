@@ -2,6 +2,7 @@ package com.attendance.attendance_system.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,11 +38,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-
-                        // Login should NOT require JWT
                         .requestMatchers("/professors/login").permitAll()
-
-                        // Everything else requires JWT
+                        .requestMatchers(HttpMethod.POST, "/professors").permitAll()
                         .anyRequest().authenticated()
                 )
 

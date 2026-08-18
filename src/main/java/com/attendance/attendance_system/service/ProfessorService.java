@@ -52,7 +52,8 @@ public class ProfessorService {
 
         String token = jwtService.generateToken(
                 professor.getId(),
-                professor.getEmail()
+                professor.getEmail(),
+                "PROFESSOR"
         );
 
         return Map.of(

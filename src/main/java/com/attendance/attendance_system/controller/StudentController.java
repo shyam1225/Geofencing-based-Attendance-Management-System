@@ -1,11 +1,15 @@
 package com.attendance.attendance_system.controller;
 
+import com.attendance.attendance_system.dto.StudentLoginRequest;
 import com.attendance.attendance_system.entity.Student;
 import com.attendance.attendance_system.service.StudentService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.attendance.attendance_system.entity.Course;
 
 @RestController
@@ -14,6 +18,7 @@ public class StudentController {
 
     private final StudentService studentService;
 
+
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
@@ -21,6 +26,16 @@ public class StudentController {
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
         return studentService.createStudent(student);
+    }
+
+    @PostMapping("/login")
+    public Map<String, Object> login(
+            @RequestBody StudentLoginRequest request) {
+
+        return studentService.login(
+                request.getEmail(),
+                request.getPassword()
+        );
     }
 
     @GetMapping
@@ -34,4 +49,5 @@ public class StudentController {
 
         return studentService.getStudentCourses(studentId);
     }
+
 }
