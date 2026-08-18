@@ -2,6 +2,7 @@ package com.attendance.attendance_system.controller;
 
 import com.attendance.attendance_system.entity.Course;
 import com.attendance.attendance_system.service.CourseService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,7 +55,15 @@ public class CourseController {
     public List<Student> getCourseStudents(
             @PathVariable Long courseId) {
 
-        return courseService.getCourseStudents(courseId);
+        Long professorId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return courseService.getCourseStudents(
+                courseId,
+                professorId
+        );
     }
 
 }

@@ -44,9 +44,6 @@ public class CourseService {
 
         return courseRepository.save(course);
     }
-    public List<Course> getCoursesByProfessor(Long professorId) {
-        return courseRepository.findByProfessorId(professorId);
-    }
     public Course addStudentToCourse(Long courseId, Long studentId) {
 
         Course course = courseRepository.findById(courseId)
@@ -82,10 +79,20 @@ public class CourseService {
 
         return courseRepository.findByProfessorId(professorId);
     }
-    public List<Student> getCourseStudents(Long courseId) {
+    public List<Student> getCourseStudents(
+            Long courseId,
+            Long professorId) {
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
+
+        if (course.getProfessor() == null ||
+                !course.getProfessor().getId().equals(professorId)) {
+
+            throw new RuntimeException(
+                    "You are not the professor of this course");
+        }
 
         return course.getStudents();
     }
