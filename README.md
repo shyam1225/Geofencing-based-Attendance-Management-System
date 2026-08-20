@@ -1,4 +1,4 @@
-[Geofencing-Based Attendance System — README.md](https://github.com/user-attachments/files/31250693/Geofencing-Based.Attendance.System.README.md)
+
 # 📍 Geofencing-Based Attendance System
 
 A **Spring Boot-based attendance management system** that uses **GPS geofencing and JWT authentication** to allow students to mark attendance only when they are physically present within the professor's predefined classroom/location boundary.
@@ -291,8 +291,4 @@ This system can be used in:
 - Improved GPS spoofing detection
 - Attendance history and reports
 
----
 
-## ⭐ If you found this project useful
-
-Give the repository a ⭐ on GitHub!
