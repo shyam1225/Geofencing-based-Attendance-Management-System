@@ -40,11 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwtService.isTokenValid(token)) {
 
-            Long professorId = jwtService.extractProfessorId(token);
+            Long UserId = jwtService.extractUserId(token);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            professorId,
+                            UserId,
                             null,
                             Collections.emptyList()
                     );

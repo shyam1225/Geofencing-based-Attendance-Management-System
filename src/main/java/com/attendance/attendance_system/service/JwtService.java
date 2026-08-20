@@ -34,7 +34,7 @@ public class JwtService {
                 .signWith(key)
                 .compact();
     }
-    public Long extractProfessorId(String token) {
+    public Long extractUserId(String token) {
 
         return Long.valueOf(
                 Jwts.parser()

@@ -29,6 +29,7 @@ public class SecurityConfig {
             throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
@@ -38,8 +39,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/professors/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/professors").permitAll()
+                        .requestMatchers("/professors/login","/students/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/professors","/students","/courses").permitAll()
                         .anyRequest().authenticated()
                 )
 

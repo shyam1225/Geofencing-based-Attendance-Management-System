@@ -16,7 +16,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import com.attendance.attendance_system.dto.AttendanceResponseDTO;
+import com.attendance.attendance_system.dto.AttendanceResponseDTO;
 @Service
 public class AttendanceService {
 
@@ -37,32 +38,36 @@ public class AttendanceService {
         this.geofenceService = geofenceService;
     }
 
-    public Attendance markAttendance(
+    public AttendanceResponseDTO markAttendance(
             Long studentId,
             Long courseId,
             double studentLatitude,
             double studentLongitude) {
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Student not found"));
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
 
         // Check enrollment
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException(
                     "Student is not enrolled in this course");
         }
+
+        // Check duplicate attendance
         if (attendanceRepository.existsByStudentIdAndCourseIdAndDate(
                 studentId,
                 courseId,
                 LocalDate.now())) {
 
             throw new RuntimeException(
-                    "Attendance already marked for today"
-            );
+                    "Attendance already marked for today");
         }
+
         // Check geofence
         boolean insideGeofence = geofenceService.isInsideGeofence(
                 studentLatitude,
@@ -77,6 +82,7 @@ public class AttendanceService {
                     "You are outside the attendance location");
         }
 
+        // Create attendance
         Attendance attendance = new Attendance();
 
         attendance.setStudent(student);
@@ -85,7 +91,23 @@ public class AttendanceService {
         attendance.setTime(LocalTime.now());
         attendance.setPresent(true);
 
-        return attendanceRepository.save(attendance);
+        // Save attendance
+        Attendance savedAttendance =
+                attendanceRepository.save(attendance);
+
+        // Return DTO instead of entity
+        return new AttendanceResponseDTO(
+                savedAttendance.getId(),
+                savedAttendance.getDate(),
+                savedAttendance.getTime(),
+                savedAttendance.isPresent(),
+                savedAttendance.getStudent().getId(),
+                savedAttendance.getStudent().getName(),
+                savedAttendance.getStudent().getEmail(),
+                savedAttendance.getStudent().getRollNumber(),
+                savedAttendance.getCourse().getId(),
+                savedAttendance.getCourse().getName()
+        );
     }
 
     public List<Attendance> getStudentAttendance(Long studentId) {
