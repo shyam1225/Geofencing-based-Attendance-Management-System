@@ -39,10 +39,29 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/professors/login","/students/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/professors","/students","/courses").permitAll()
-                        .anyRequest().authenticated()
-                )
+
+        .requestMatchers(
+                "/professors/login",
+                "/students/login"
+        ).permitAll()
+                                       
+        .requestMatchers(
+                HttpMethod.POST,
+                "/professors",
+                "/students"
+        ).permitAll()
+
+        .requestMatchers("/professors/**")
+        .hasRole("PROFESSOR")
+
+        .requestMatchers("/students/**")
+        .hasRole("STUDENT")
+
+        .requestMatchers("/courses/**")
+        .hasRole("PROFESSOR")
+
+        .anyRequest().authenticated()
+)
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,
