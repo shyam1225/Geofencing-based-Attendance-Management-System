@@ -45,6 +45,14 @@ public class JwtService {
                         .getSubject()
         );
     }
+    public String extractRole(String token) {
+    return Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get("role", String.class);
+}
 
     public boolean isTokenValid(String token) {
 
